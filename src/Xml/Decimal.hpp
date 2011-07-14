@@ -4,7 +4,7 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 
-namespace rtrt
+namespace bng
 {
   /*! Class representing a general decimal value. */
   class Decimal

@@ -3,7 +3,7 @@
 using std::string;
 using std::ostream;
 using boost::lexical_cast;
-using namespace rtrt;
+using namespace bng;
 
 Decimal::Decimal() : _value()
 {
@@ -43,7 +43,7 @@ bool Decimal::equal( const T& value ) const
   }
 }
 
-ostream& rtrt::operator<<( ostream& stream, const Decimal& decimal )
+ostream& bng::operator<<( ostream& stream, const Decimal& decimal )
 {
   stream << decimal._value;
   return stream;

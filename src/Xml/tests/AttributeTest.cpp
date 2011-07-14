@@ -1,55 +1,55 @@
 #include <gtest/gtest.h>
-#include <Xml/XmlAttribute.hpp>
+#include <Xml/Attribute.hpp>
 
 using std::string;
-using namespace rtrt;
+using namespace bng::xml;
 
-TEST( XmlAttributeTest, IntAttribute )
+TEST( AttributeTest, IntAttribute )
 {
-  XmlAttribute attr;
+  Attribute attr;
   attr = 123;
   
   EXPECT_TRUE( attr == 123 );
 }
 
-TEST( XmlAttributeTest, StringAttribute )
+TEST( AttributeTest, StringAttribute )
 {
-  XmlAttribute attr;
+  Attribute attr;
   attr = "value";
   
   EXPECT_TRUE( attr == "value" );
 }
 
-TEST( XmlAttributeTest, FloatEQFail )
+TEST( AttributeTest, FloatEQFail )
 {
-  XmlAttribute attr;
+  Attribute attr;
   attr = 123;
   
   float value( 123.5 );
   EXPECT_FALSE( attr == value );
 }
 
-TEST( XmlAttributeTest, FloatEQSuccess )
+TEST( AttributeTest, FloatEQSuccess )
 {
-  XmlAttribute attr;
+  Attribute attr;
   attr = 123;
   
   float value( 123 );
   EXPECT_EQ( attr, value );
 }
 
-TEST( XmlAttributeTest, StringAs )
+TEST( AttributeTest, StringAs )
 {
-  XmlAttribute attr;
+  Attribute attr;
   attr = "Hello";
   
   EXPECT_TRUE( attr.as< string >() == "Hello" ); 
   ASSERT_THROW( attr.as< int >(), boost::bad_lexical_cast );
 }
 
-TEST( XmlAttributeTest, IntAs )
+TEST( AttributeTest, IntAs )
 {
-  XmlAttribute attr;
+  Attribute attr;
   attr = 123;
   
   EXPECT_EQ( attr.as< int >(), 123 );

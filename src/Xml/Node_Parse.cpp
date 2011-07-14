@@ -5,11 +5,11 @@
 #include <boost/spirit/include/phoenix_object.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp> 
 #include <boost/fusion/include/adapt_struct.hpp>
-#include "XmlNode.hpp"
+#include "Node.hpp"
 
 using std::string;
 using std::istream;
-using namespace rtrt;
+using namespace bng::xml;
 
 namespace spirit = boost::spirit;
 namespace phoenix = boost::phoenix;
@@ -67,18 +67,18 @@ phoenix::function< addNodeImpl > addNode;
 struct TagType
 {
   string name;
-  XmlAttribute::ValueType value;
+  Attribute::ValueType value;
 };
 
 BOOST_FUSION_ADAPT_STRUCT
 (
   TagType,
   ( string, name )
-  ( XmlAttribute::ValueType, value )
+  ( Attribute::ValueType, value )
 )
 
 template< class Iterator >
-struct XmlGrammar : public qi::grammar< Iterator, XmlNodePtr(), qi::locals< string >, ascii::space_type >
+struct XmlGrammar : public qi::grammar< Iterator, NodePtr(), qi::locals< string >, ascii::space_type >
 {
   XmlGrammar() : XmlGrammar::base_type( xml, "xml" )
   {
@@ -127,7 +127,7 @@ struct XmlGrammar : public qi::grammar< Iterator, XmlNodePtr(), qi::locals< stri
                  >> ascii::string( _r1 )
                  >> '>';
     
-    xml = eps[ _val = phoenix::construct< XmlNodePtr >( phoenix::new_< XmlNode >() ) ] 
+    xml = eps[ _val = phoenix::construct< NodePtr >( phoenix::new_< Node >() ) ] 
           >> '<' 
           >> name[ _a = _1 ]
           > eps[ setName( _val, _a ) ]
@@ -156,18 +156,16 @@ struct XmlGrammar : public qi::grammar< Iterator, XmlNodePtr(), qi::locals< stri
       ); 
   }
   
-  qi::rule< Iterator, XmlNodePtr(), qi::locals< string >, ascii::space_type > xml;
-  qi::rule< Iterator, XmlNodePtr(), ascii::space_type > node;
+  qi::rule< Iterator, NodePtr(), qi::locals< string >, ascii::space_type > xml;
+  qi::rule< Iterator, NodePtr(), ascii::space_type > node;
   qi::rule< Iterator, string(), ascii::space_type > name;
   qi::rule< Iterator, TagType(), ascii::space_type > tag;
-  qi::rule< Iterator, XmlAttribute::ValueType(), ascii::space_type > integer_; 
+  qi::rule< Iterator, Attribute::ValueType(), ascii::space_type > integer_; 
   qi::rule< Iterator, string(), ascii::space_type > quotedString;
   qi::rule< Iterator, void( string ), ascii::space_type > closingTag;
-  
-  XmlNodePtr _parent;
 };
 
-XmlNodePtr XmlNode::parse( istream& stream )
+NodePtr Node::parse( istream& stream )
 {
   stream.unsetf(std::ios::skipws);
   
@@ -175,10 +173,10 @@ XmlNodePtr XmlNode::parse( istream& stream )
   spirit::istream_iterator end;
   
   XmlGrammar< spirit::istream_iterator > xmlParser;
-  XmlNodePtr ret;
+  NodePtr ret;
   bool result = phrase_parse( begin, end, xmlParser, ascii::space, ret );
   if( !result || begin != end )
-    return XmlNodePtr();
+    return NodePtr();
   
   return ret;
 }

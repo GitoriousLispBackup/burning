@@ -2,14 +2,14 @@
 #include <boost/foreach.hpp>
 #include <gtest/gtest.h>
 #include <utility>
-#include <Xml/XmlNode.hpp>
+#include <Xml/Node.hpp>
 
 using std::string;
 using std::stringstream;
 using std::vector;
-using namespace rtrt;
+using namespace bng::xml;
 
-class XmlNodeTest : public testing::Test
+class NodeTest : public testing::Test
 {
 public:
   void SetUp();
@@ -17,89 +17,89 @@ public:
   stringstream stream;
 };
 
-void XmlNodeTest::SetUp()
+void NodeTest::SetUp()
 {
   stream.unsetf(std::ios::skipws);
 }
 
-TEST_F( XmlNodeTest, EmptyInitialization )
+TEST_F( NodeTest, EmptyInitialization )
 {
-  XmlNode node;
+  Node node;
   
   EXPECT_EQ( node.name(), "" );
 }
 
-TEST_F( XmlNodeTest, Initialization )
+TEST_F( NodeTest, Initialization )
 {
-  XmlNode node( "node" );
+  Node node( "node" );
   
   EXPECT_EQ( node.name(), "node" );
 }
 
-TEST_F( XmlNodeTest, Assignment )
+TEST_F( NodeTest, Assignment )
 {
-  XmlNode node;
+  Node node;
   node.name() = "node";
   
   EXPECT_EQ( node.name(), "node" );
 }
 
-TEST_F( XmlNodeTest, SimpleOutput )
+TEST_F( NodeTest, SimpleOutput )
 {
   string expected = "<node/>";
-  XmlNode node( "node" );
+  Node node( "node" );
   
   node.write( stream );
   
   EXPECT_EQ( stream.str(), expected );
 }
 
-TEST_F( XmlNodeTest, SimpleParse )
+TEST_F( NodeTest, SimpleParse )
 {
   stream.str( "<node/>" );
   
-  XmlNodePtr node( XmlNode::parse( stream )); 
+  NodePtr node( Node::parse( stream )); 
   
   ASSERT_FALSE( node == NULL );
   EXPECT_EQ( node->name(), "node" );
 }
 
-TEST_F( XmlNodeTest, SimpleSpaceFail )
+TEST_F( NodeTest, SimpleSpaceFail )
 {
   stream.str( "<node f/>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node == NULL );
 }
 
-TEST_F( XmlNodeTest, NotExistingAttribute )
+TEST_F( NodeTest, NotExistingAttribute )
 {
-  XmlNode node;
+  Node node;
   
   EXPECT_FALSE( node.attr( "attr" ).isSet() );
   EXPECT_FALSE( node.attr( "attr" ).isSet() );
 }
 
-TEST_F( XmlNodeTest, AddAttribute )
+TEST_F( NodeTest, AddAttribute )
 {
-  XmlNode node;
+  Node node;
   node.attr( "attr" ) = "value";
   
   ASSERT_TRUE( node.attr( "attr" ).isSet() );
   EXPECT_EQ( node.attr( "attr" ), "value" );
 }
 
-TEST_F( XmlNodeTest, EqNotExistingAttribute )
+TEST_F( NodeTest, EqNotExistingAttribute )
 {
-  XmlNode node;
+  Node node;
   
   EXPECT_NE( node.attr( "attr" ), "some value" );
 }
 
-TEST_F( XmlNodeTest, ResetAttribute )
+TEST_F( NodeTest, ResetAttribute )
 {
-  XmlNode node;
+  Node node;
   node.attr( "attr" ) = "badValue";
   
   node.attr( "attr" ) = "fine";
@@ -108,9 +108,9 @@ TEST_F( XmlNodeTest, ResetAttribute )
   EXPECT_EQ( node.attr( "attr" ), "fine" );
 }
 
-TEST_F( XmlNodeTest, Integer )
+TEST_F( NodeTest, Integer )
 {
-  XmlNode node;
+  Node node;
   
   EXPECT_NE( node.attr( "attr" ), 123 );
   
@@ -120,18 +120,18 @@ TEST_F( XmlNodeTest, Integer )
   EXPECT_EQ( node.attr( "attr" ), 123 );
 }
 
-TEST_F( XmlNodeTest, AsInt )
+TEST_F( NodeTest, AsInt )
 {
-  XmlNode node;
+  Node node;
   node.attr( "attr" ) = 123;
   
   EXPECT_EQ( node.attr( "attr" ).as< int >(), 123 );
   EXPECT_EQ( node.attr( "attr" ).as< string >(), "123" );
 }
 
-TEST_F( XmlNodeTest, IntAttributePrint )
+TEST_F( NodeTest, IntAttributePrint )
 {
-  XmlNode node( "node" );
+  Node node( "node" );
   node.attr( "attr" ) = 123;
   
   string expected( "<node attr=123/>" );
@@ -141,9 +141,9 @@ TEST_F( XmlNodeTest, IntAttributePrint )
   EXPECT_EQ( stream.str(), expected );
 }
 
-TEST_F( XmlNodeTest, TwoDecimalAttributesPrint )
+TEST_F( NodeTest, TwoDecimalAttributesPrint )
 {
-  XmlNode node( "node" );
+  Node node( "node" );
   node.attr( "attr1" ) = 123;
   node.attr( "attr2" ) = 123.5;
   
@@ -154,9 +154,9 @@ TEST_F( XmlNodeTest, TwoDecimalAttributesPrint )
   EXPECT_EQ( stream.str(), expected );
 }
 
-TEST_F( XmlNodeTest, StringAttributePrint )
+TEST_F( NodeTest, StringAttributePrint )
 {
-  XmlNode node( "node" );
+  Node node( "node" );
   node.attr( "attr" ) = "quoted value";
   
   string expected( "<node attr=\"quoted value\"/>" );
@@ -165,51 +165,51 @@ TEST_F( XmlNodeTest, StringAttributePrint )
   EXPECT_EQ( stream.str(), expected );
 }
 
-TEST_F( XmlNodeTest, ParseIntAttribute )
+TEST_F( NodeTest, ParseIntAttribute )
 {
   stream.str( "<node attr=123/>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node != NULL );
   EXPECT_EQ( node->attr( "attr" ), 123 );
 }
 
-TEST_F( XmlNodeTest, ParseSizeTAttribute )
+TEST_F( NodeTest, ParseSizeTAttribute )
 {
   stream.str( "<node attr=1234567891/>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node != NULL );
   EXPECT_EQ( node->attr( "attr" ), size_t( 1234567891 ));
 }
 
-TEST_F( XmlNodeTest, ParseFloatAttribute )
+TEST_F( NodeTest, ParseFloatAttribute )
 {
   stream.str( "<node attr=123.5/>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node != NULL );
   EXPECT_EQ( node->attr( "attr" ), 123.5F );
 }
 
-TEST_F( XmlNodeTest, ParseStringAttribute )
+TEST_F( NodeTest, ParseStringAttribute )
 {
   stream.str( "<node attr=\"quoted string\"/>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node != NULL );
   EXPECT_EQ( node->attr( "attr" ), "quoted string" );
 }
 
-TEST_F( XmlNodeTest, SeveralAttributesParse )
+TEST_F( NodeTest, SeveralAttributesParse )
 {
   stream.str( "<node attr1=123 attr2=123.5 attr3=\"quoted string\" />" );
   
-  XmlNodePtr node( XmlNode::parse( stream ) );
+  NodePtr node( Node::parse( stream ) );
   
   ASSERT_TRUE( node != NULL );
   EXPECT_EQ( node->attr( "attr1" ), 123 );
@@ -217,51 +217,51 @@ TEST_F( XmlNodeTest, SeveralAttributesParse )
   EXPECT_EQ( node->attr( "attr3" ), "quoted string" );
 }
 
-TEST_F( XmlNodeTest, ParseClosingTag )
+TEST_F( NodeTest, ParseClosingTag )
 {
   stream.str( "<node></node>");
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node != NULL );
   EXPECT_EQ( node->name(), "node" );
 }
 
-TEST_F( XmlNodeTest, BadClosingTag )
+TEST_F( NodeTest, BadClosingTag )
 {
   stream.str( "<node></notnode>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_TRUE( node == NULL );
 }
 
-TEST_F( XmlNodeTest, NoInnerNode )
+TEST_F( NodeTest, NoInnerNode )
 {
-  XmlNode node;
+  Node node;
   
   EXPECT_FALSE( node.childs( "child" ).exist() );
   EXPECT_FALSE( node.childs( "child" ).exist() );
   EXPECT_EQ( node.childs( "child" ).count(), 0 );
 }
 
-TEST_F( XmlNodeTest, AddInnerNode )
+TEST_F( NodeTest, AddInnerNode )
 {
-  XmlNode node;
-  node.childs() += XmlNodePtr( new XmlNode( "child" ));
+  Node node;
+  node.childs() += NodePtr( new Node( "child" ));
  
   EXPECT_TRUE( node.childs( "child" ).exist() );
   EXPECT_EQ( node.childs( "child" ).count(), 1 );
 }
 
-TEST_F( XmlNodeTest, ChildsForeach )
+TEST_F( NodeTest, ChildsForeach )
 {
-  XmlNode node;
-  node.childs() += XmlNode::create( "child1" );
-  node.childs() += XmlNode::create( "child2" );
+  Node node;
+  node.childs() += Node::create( "child1" );
+  node.childs() += Node::create( "child2" );
   
   vector< string > names;
-  BOOST_FOREACH( XmlNodePtr val, node.childs() )
+  BOOST_FOREACH( NodePtr val, node.childs() )
     names.push_back( val->name() );
   
   ASSERT_EQ( names.size(), 2 );
@@ -269,36 +269,36 @@ TEST_F( XmlNodeTest, ChildsForeach )
   EXPECT_EQ( names[ 1 ], "child2" );
 }
 
-TEST_F( XmlNodeTest, PartialChildsForeach )
+TEST_F( NodeTest, PartialChildsForeach )
 {
-  XmlNode node;
-  node.childs() += XmlNode::create( "child1" );
-  node.childs() += XmlNode::create( "child1" );
-  node.childs() += XmlNode::create( "child2" );
+  Node node;
+  node.childs() += Node::create( "child1" );
+  node.childs() += Node::create( "child1" );
+  node.childs() += Node::create( "child2" );
   
   ASSERT_EQ( node.childs( "child1" ).count(), 2 );
   
   int count( 0 );
-  BOOST_FOREACH( XmlNodePtr curr, node.childs( "child1" ))
+  BOOST_FOREACH( NodePtr curr, node.childs( "child1" ))
     count++;
     
   EXPECT_EQ( count, 2 );
 }
 
-TEST_F( XmlNodeTest, InnerNodePrint )
+TEST_F( NodeTest, InnerNodePrint )
 {
   string expected( "<node1>\n"\
                    "  <node2/>\n"\
                    "</node1>" );
   
-  XmlNode node( "node1" );
-  node.childs() += XmlNode::create( "node2" );
+  Node node( "node1" );
+  node.childs() += Node::create( "node2" );
   node.write( stream );
   
   EXPECT_EQ( stream.str(), expected );
 }
 
-TEST_F( XmlNodeTest, ComplexInnerNodePrint )
+TEST_F( NodeTest, ComplexInnerNodePrint )
 {
   string expected( "<node1>\n"\
                    "  <node2/>\n"\
@@ -308,41 +308,41 @@ TEST_F( XmlNodeTest, ComplexInnerNodePrint )
                    "  <node5/>\n"\
                    "</node1>" );
   
-  XmlNode node( "node1" );
-  node.childs() += XmlNode::create( "node2" );
+  Node node( "node1" );
+  node.childs() += Node::create( "node2" );
   
-  XmlNodePtr node3( XmlNode::create( "node3" ));
-  node3->childs() += XmlNode::create( "node4" );
+  NodePtr node3( Node::create( "node3" ));
+  node3->childs() += Node::create( "node4" );
   
   node.childs() += node3;
-  node.childs() += XmlNode::create( "node5" );
+  node.childs() += Node::create( "node5" );
   
   node.write( stream );
   
   EXPECT_EQ( stream.str(), expected );
 }
 
-TEST_F( XmlNodeTest, EmptyParentTest )
+TEST_F( NodeTest, EmptyParentTest )
 {
-  XmlNode node;
+  Node node;
   
   EXPECT_TRUE( node.parent() == NULL );
 }
 
-TEST_F( XmlNodeTest, ParentTest )
+TEST_F( NodeTest, ParentTest )
 {
-  XmlNode node;
-  XmlNodePtr node2( XmlNode::create());
+  Node node;
+  NodePtr node2( Node::create());
   node.childs() += node2;
   
   EXPECT_EQ( node2->parent(), &node );
 }
 
-TEST_F( XmlNodeTest, InnerNodeParse )
+TEST_F( NodeTest, InnerNodeParse )
 {
   stream.str( "<node1><node2/></node1>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_FALSE( node == NULL );
   EXPECT_EQ( node->name(), "node1" );
@@ -350,7 +350,7 @@ TEST_F( XmlNodeTest, InnerNodeParse )
   EXPECT_EQ( node->childs( "node2" ).count(), 1 );
 }
 
-TEST_F( XmlNodeTest, ComplexNodeParse )
+TEST_F( NodeTest, ComplexNodeParse )
 {
   stream.str( "<node1>\n"\
               "  <node2/>\n"\
@@ -360,7 +360,7 @@ TEST_F( XmlNodeTest, ComplexNodeParse )
               "  </node3>\n"\
               "</node1>" );
   
-  XmlNodePtr node( XmlNode::parse( stream ));
+  NodePtr node( Node::parse( stream ));
   
   ASSERT_FALSE( node == NULL );
   EXPECT_EQ( node->name(), "node1" );

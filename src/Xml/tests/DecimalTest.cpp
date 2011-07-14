@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <Xml/Decimal.hpp>
 
-using namespace rtrt;
+using namespace bng;
 
 TEST( DecimalTest, Int )
 {
