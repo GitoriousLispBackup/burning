@@ -98,7 +98,7 @@ endmacro()
 macro( build_library )
   include_directories( ${${PROJECT_NAME}_PREREQUESTS_INCLUDE_DIR} ) 
 
-  add_library( ${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES} )
+  add_library( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} )
   target_link_libraries( ${PROJECT_NAME} ${${PROJECT_NAME}_PREREQUESTS_LIBRARIES} ) 
 
   copy_library( ${PROJECT_NAME} )
@@ -109,7 +109,7 @@ macro( build_library )
   endif()
 
   install( TARGETS ${PROJECT_NAME} DESTINATION ${LIBRARY_INSTALL_PATH} )
-  install( FILES ${${PROJECT_NAME}_HEADERS} DESTINATION ${INCLUDE_INSTALL_PATH} )
+  install( FILES ${${PROJECT_NAME}_HEADERS} DESTINATION ${INCLUDE_INSTALL_PATH}/${PROJECT_NAME} )
 
   find_package( GTest )
   if( GTEST_FOUND )

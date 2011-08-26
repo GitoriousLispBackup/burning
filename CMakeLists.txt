@@ -17,7 +17,7 @@ set( BINARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin )
 
 set( DOC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/doc/ )
 
-set( CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install )
+set( CMAKE_INSTALL_PREFIX /usr/local/burning )
 
 set( LIBRARY_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/lib )
 set( BINARY_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/bin )
@@ -30,28 +30,19 @@ create_directory( tests )
 option( INSTALL_EXAMPLES "Install examples." ON )
 option( INSTALL_DOCUMENTATION "Install documentation." ON )
 
-# add_subdirectory( src/Profiling Profiling )
-# add_subdirectory( src/Core Core )
 add_subdirectory( src/Xml Xml )
-# add_subdirectory( src/Graphics Graphics )
-# add_subdirectory( src/Compute Compute )
-# add_subdirectory( src/Scenegraph Scenegraph )
-# add_subdirectory( src/Convert Convert )
-# add_subdirectory( src/QtGui QtGui )
-# add_subdirectory( src/Repository Repository )
-# add_subdirectory( src/Rendering Rendering )
-# add_subdirectory( src/CommandLine CommandLine )
+add_subdirectory( src/CommandLine CommandLine )
+add_subdirectory( src/Profiling Profiling)
 
-# add_subdirectory( utils utils )
+find_package( Doxygen )
+if( DOXYGEN_FOUND )
 
-# find_package( Doxygen )
-# if( DOXYGEN_FOUND )
+  add_custom_target(
+    doc
+    ${DOXYGEN_EXECUTABLE} ${DOC_PATH}/Doxyfile
+    WORKING_DIRECTORY ${DOC_PATH})
 
-#   add_custom_target( doc
-#                      ${DOXYGEN_EXECUTABLE} ${DOC_PATH}/Doxyfile
-#                      WORKING_DIRECTORY ${DOC_PATH}
-#                    )
-#   if( INSTALL_DOCUMENTATION )
-#     install( DIRECTORY ${DOC_PATH}/html ${DOC_PATH}/latex DESTINATION ${DOC_INSTALL_PATH} )
-#   endif()
-# endif()
+  if( INSTALL_DOCUMENTATION )
+    install( DIRECTORY ${DOC_PATH}/html ${DOC_PATH}/latex DESTINATION ${DOC_INSTALL_PATH} )
+  endif()
+endif()
